@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using e_commerce_platform.Infrastructure.Data;
@@ -11,9 +12,11 @@ using e_commerce_platform.Infrastructure.Data;
 namespace e_commerce_platform.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260604122706_RemoveCategoryEntities")]
+    partial class RemoveCategoryEntities
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -317,20 +320,17 @@ namespace e_commerce_platform.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int>("DisplayOrder")
-                        .HasColumnType("integer");
+                    b.Property<Guid?>("MerchantId")
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
-                    b.Property<Guid>("ProductId")
-                        .HasColumnType("uuid");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("ProductId");
+                    b.HasIndex("MerchantId");
 
                     b.ToTable("Attributes", (string)null);
                 });
@@ -346,9 +346,6 @@ namespace e_commerce_platform.Migrations
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("DisplayOrder")
-                        .HasColumnType("integer");
 
                     b.Property<string>("Value")
                         .IsRequired()
@@ -559,6 +556,21 @@ namespace e_commerce_platform.Migrations
                     b.ToTable("Products", (string)null);
                 });
 
+            modelBuilder.Entity("e_commerce_platform.Domain.Entities.ProductAttribute", b =>
+                {
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("AttributeId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("ProductId", "AttributeId");
+
+                    b.HasIndex("AttributeId");
+
+                    b.ToTable("ProductAttributes", (string)null);
+                });
+
             modelBuilder.Entity("e_commerce_platform.Domain.Entities.ProductVariant", b =>
                 {
                     b.Property<Guid>("Id")
@@ -728,13 +740,12 @@ namespace e_commerce_platform.Migrations
 
             modelBuilder.Entity("e_commerce_platform.Domain.Entities.Attribute", b =>
                 {
-                    b.HasOne("e_commerce_platform.Domain.Entities.Product", "Product")
-                        .WithMany("Attributes")
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.HasOne("e_commerce_platform.Domain.Entities.Merchant", "Merchant")
+                        .WithMany()
+                        .HasForeignKey("MerchantId")
+                        .OnDelete(DeleteBehavior.Cascade);
 
-                    b.Navigation("Product");
+                    b.Navigation("Merchant");
                 });
 
             modelBuilder.Entity("e_commerce_platform.Domain.Entities.AttributeValue", b =>
@@ -830,6 +841,25 @@ namespace e_commerce_platform.Migrations
                     b.Navigation("Merchant");
                 });
 
+            modelBuilder.Entity("e_commerce_platform.Domain.Entities.ProductAttribute", b =>
+                {
+                    b.HasOne("e_commerce_platform.Domain.Entities.Attribute", "Attribute")
+                        .WithMany("ProductAttributes")
+                        .HasForeignKey("AttributeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("e_commerce_platform.Domain.Entities.Product", "Product")
+                        .WithMany("ProductAttributes")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Attribute");
+
+                    b.Navigation("Product");
+                });
+
             modelBuilder.Entity("e_commerce_platform.Domain.Entities.ProductVariant", b =>
                 {
                     b.HasOne("e_commerce_platform.Domain.Entities.Product", "Product")
@@ -887,6 +917,8 @@ namespace e_commerce_platform.Migrations
 
             modelBuilder.Entity("e_commerce_platform.Domain.Entities.Attribute", b =>
                 {
+                    b.Navigation("ProductAttributes");
+
                     b.Navigation("Values");
                 });
 
@@ -904,7 +936,7 @@ namespace e_commerce_platform.Migrations
 
             modelBuilder.Entity("e_commerce_platform.Domain.Entities.Product", b =>
                 {
-                    b.Navigation("Attributes");
+                    b.Navigation("ProductAttributes");
 
                     b.Navigation("Variants");
                 });

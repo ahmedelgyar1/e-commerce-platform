@@ -1,6 +1,7 @@
 using System.Text;
 using e_commerce_platform.Domain.Entities;
 using e_commerce_platform.Infrastructure.Data;
+using e_commerce_platform.Infrastructure.Repositories;
 using e_commerce_platform.Services.Implementations;
 using e_commerce_platform.Services.Interfaces;
 using e_commerce_platform.Settings;
@@ -73,7 +74,24 @@ namespace e_commerce_platform
             builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddScoped<IEmailService, EmailService>();
 
-            builder.Services.AddControllers();
+            builder.Services.AddScoped<IProductRepository, ProductRepository>();
+            builder.Services.AddScoped<IProductService, ProductService>();
+
+            builder.Services.AddScoped<IAttributeRepository, AttributeRepository>();
+            builder.Services.AddScoped<IAttributeValueRepository, AttributeValueRepository>();
+            builder.Services.AddScoped<IProductAttributeService, ProductAttributeService>();
+
+            builder.Services.AddScoped<IProductVariantRepository, ProductVariantRepository>();
+            builder.Services.AddScoped<IProductVariantService, ProductVariantService>();
+
+            builder.Services.AddHttpContextAccessor();
+            builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
+
+            builder.Services.AddControllers()
+                .AddJsonOptions(options =>
+                {
+                    options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
+                });
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(options =>
             {

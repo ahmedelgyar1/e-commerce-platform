@@ -19,9 +19,12 @@ public class AttributeConfiguration : IEntityTypeConfiguration<AttributeEntity>
         builder.Property(a => a.CreatedAt)
             .IsRequired();
 
-        builder.HasOne(a => a.Merchant)
-            .WithMany()
-            .HasForeignKey(a => a.MerchantId)
+        builder.Property(a => a.DisplayOrder)
+            .IsRequired();
+
+        builder.HasOne(a => a.Product)
+            .WithMany(p => p.Attributes)
+            .HasForeignKey(a => a.ProductId)
             .OnDelete(DeleteBehavior.Cascade);
     }
 }

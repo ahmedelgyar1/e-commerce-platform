@@ -10,20 +10,13 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid
 {
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
-    public DbSet<Customer> Customers => Set<Customer>();
     public DbSet<Merchant> Merchants => Set<Merchant>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
-    public DbSet<FcmToken> FcmTokens => Set<FcmToken>();
-    public DbSet<Notification> Notifications => Set<Notification>();
-    public DbSet<Address> Addresses => Set<Address>();
     public DbSet<Product> Products => Set<Product>();
     public DbSet<Domain.Entities.Attribute> Attributes => Set<Domain.Entities.Attribute>();
     public DbSet<AttributeValue> AttributeValues => Set<AttributeValue>();
     public DbSet<ProductVariant> ProductVariants => Set<ProductVariant>();
     public DbSet<ProductVariantAttributeValue> ProductVariantAttributeValues => Set<ProductVariantAttributeValue>();
-    public DbSet<Order> Orders => Set<Order>();
-    public DbSet<OrderItem> OrderItems => Set<OrderItem>();
-    public DbSet<Payment> Payments => Set<Payment>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -40,7 +33,6 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid
         {
             if (entry.Entity is Product p) p.UpdatedAt = DateTime.UtcNow;
             if (entry.Entity is ProductVariant pv) pv.UpdatedAt = DateTime.UtcNow;
-            if (entry.Entity is Order o) o.UpdatedAt = DateTime.UtcNow;
             if (entry.Entity is ApplicationUser u) u.UpdatedAt = DateTime.UtcNow;
         }
 

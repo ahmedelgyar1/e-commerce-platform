@@ -3,17 +3,24 @@ using e_commerce_platform.Domain.Enums;
 using e_commerce_platform.DTOs.Product;
 using e_commerce_platform.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace e_commerce_platform.Services.Implementations;
 
 public class ProductService : IProductService
 {
     private readonly IProductRepository _productRepository;
+    private readonly IMemoryCache _cache;
     private readonly ILogger<ProductService> _logger;
 
-    public ProductService(IProductRepository productRepository, ILogger<ProductService> logger)
+    private static string ProductCacheKey(Guid id) => $"product:{id}";
+    private static readonly MemoryCacheEntryOptions CacheOptions = new MemoryCacheEntryOptions()
+        .SetSlidingExpiration(TimeSpan.FromMinutes(10));
+
+    public ProductService(IProductRepository productRepository, IMemoryCache cache, ILogger<ProductService> logger)
     {
         _productRepository = productRepository;
+        _cache = cache;
         _logger = logger;
     }
 
@@ -43,12 +50,23 @@ public class ProductService : IProductService
     public async Task<ProductDto?> GetProductByIdAsync(Guid id)
     {
         _logger.LogInformation("Retrieving product by id: {ProductId}", id);
+
+        if (_cache.TryGetValue(ProductCacheKey(id), out ProductDto? cached))
+        {
+            _logger.LogInformation("Cache hit for product {ProductId}.", id);
+            return cached;
+        }
+
         var product = await _productRepository.GetProductWithMerchantAsync(id);
         if (product == null)
         {
             return null;
         }
-        return MapToDto(product);
+
+        var dto = MapToDto(product);
+        _cache.Set(ProductCacheKey(id), dto, CacheOptions);
+
+        return dto;
     }
 
     public async Task<ProductDto> UpdateProductAsync(Guid id, UpdateProductRequest request, Guid merchantId)
@@ -76,7 +94,9 @@ public class ProductService : IProductService
         _productRepository.Update(product);
         await _productRepository.SaveChangesAsync();
 
-        _logger.LogInformation("Product {ProductId} updated successfully.", id);
+        _cache.Remove(ProductCacheKey(id));
+        _logger.LogInformation("Product {ProductId} updated and cache invalidated.", id);
+
         return MapToDto(product);
     }
 
@@ -99,7 +119,8 @@ public class ProductService : IProductService
         _productRepository.Delete(product);
         await _productRepository.SaveChangesAsync();
 
-        _logger.LogInformation("Product {ProductId} deleted successfully.", id);
+        _cache.Remove(ProductCacheKey(id));
+        _logger.LogInformation("Product {ProductId} deleted and cache invalidated.", id);
     }
 
     public async Task<PaginatedProductsDto> GetProductsAsync(ProductQueryParameters queryParams)
@@ -111,7 +132,7 @@ public class ProductService : IProductService
         if (!string.IsNullOrWhiteSpace(queryParams.Search))
         {
             var searchLower = queryParams.Search.ToLower();
-            query = query.Where(p => p.Name.ToLower().Contains(searchLower) || 
+            query = query.Where(p => p.Name.ToLower().Contains(searchLower) ||
                                      (p.Description != null && p.Description.ToLower().Contains(searchLower)));
         }
 

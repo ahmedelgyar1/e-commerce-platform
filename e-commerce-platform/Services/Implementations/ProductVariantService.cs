@@ -98,7 +98,7 @@ public class ProductVariantService : IProductVariantService
         return MapToVariantDto(createdVariant!);
     }
 
-    public async Task<PaginatedVariantsDto> GetVariantsAsync(Guid productId, ProductQueryParameters queryParams)
+    public async Task<PaginatedVariantsDto> GetVariantsAsync(Guid productId, VariantQueryParameters queryParams)
     {
         var query = _variantRepository.GetVariantsQueryable(productId);
 
@@ -108,10 +108,9 @@ public class ProductVariantService : IProductVariantService
             query = query.Where(v => v.SKU.ToLower().Contains(searchLower));
         }
 
-        if (queryParams.Status.HasValue)
+        if (queryParams.IsActive.HasValue)
         {
-            var activeState = queryParams.Status.Value == Domain.Enums.ProductStatus.Active;
-            query = query.Where(v => v.IsActive == activeState);
+            query = query.Where(v => v.IsActive == queryParams.IsActive.Value);
         }
 
         var totalCount = await query.CountAsync();

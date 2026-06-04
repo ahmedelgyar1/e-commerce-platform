@@ -2,11 +2,13 @@ using e_commerce_platform.DTOs.Product;
 using e_commerce_platform.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace e_commerce_platform.Controllers;
 
 [ApiController]
 [Route("api/products/{productId:guid}/attributes")]
+[EnableRateLimiting("general")]
 public class ProductAttributesController : ControllerBase
 {
     private readonly IProductAttributeService _attributeService;
@@ -124,7 +126,7 @@ public class ProductAttributesController : ControllerBase
         try
         {
             var result = await _attributeService.AddAttributeValueAsync(productId, attributeId, request, merchantId.Value);
-            return Ok(new { message = "Attribute value added successfully.", data = result });
+            return CreatedAtAction(nameof(ListAttributes), new { productId }, new { message = "Attribute value added successfully.", data = result });
         }
         catch (KeyNotFoundException ex)
         {

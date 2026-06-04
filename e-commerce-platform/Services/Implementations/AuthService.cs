@@ -51,7 +51,7 @@ public class AuthService : IAuthService
         if (!Enum.TryParse<UserRole>(request.Role, true, out var role))
         {
             _logger.LogWarning("Registration rejected - invalid role: {Role}", request.Role);
-            throw new ArgumentException("Invalid role. Must be 'Customer' or 'Merchant'.");
+            throw new ArgumentException("Invalid role. Must be 'Merchant'.");
         }
 
         if (role == UserRole.Admin)
@@ -60,11 +60,12 @@ public class AuthService : IAuthService
             throw new UnauthorizedAccessException("Cannot register as Admin.");
         }
 
-        ApplicationUser user = role switch
+        if (role != UserRole.Merchant)
         {
-            UserRole.Merchant => new Merchant { FullName = request.FullName, Email = request.Email, UserName = request.Email },
-            _ => new Customer { FullName = request.FullName, Email = request.Email, UserName = request.Email }
-        };
+            throw new ArgumentException("Invalid role. Must be 'Merchant'.");
+        }
+
+        ApplicationUser user = new Merchant { FullName = request.FullName, Email = request.Email, UserName = request.Email };
 
         
         var otpCode = CodeGenerator.Generate6DigitOtp();

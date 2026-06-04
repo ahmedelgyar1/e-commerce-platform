@@ -14,6 +14,4 @@ public class ApplicationUser : IdentityUser<Guid>
     public DateTime? OtpExpiry { get; set; }
 
     public ICollection<RefreshToken> RefreshTokens { get; set; } = [];
-    public ICollection<FcmToken> FcmTokens { get; set; } = [];
-    public ICollection<Notification> Notifications { get; set; } = [];
 }

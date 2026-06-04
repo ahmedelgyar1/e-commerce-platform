@@ -13,5 +13,4 @@ public class ProductVariant
 
     public Product Product { get; set; } = null!;
     public ICollection<ProductVariantAttributeValue> AttributeValues { get; set; } = [];
-    public ICollection<OrderItem> OrderItems { get; set; } = [];
 }

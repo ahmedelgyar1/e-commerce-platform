@@ -2,11 +2,13 @@ using e_commerce_platform.DTOs.Product;
 using e_commerce_platform.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace e_commerce_platform.Controllers;
 
 [ApiController]
 [Route("api/products/{productId:guid}/variants")]
+[EnableRateLimiting("general")]
 public class ProductVariantsController : ControllerBase
 {
     private readonly IProductVariantService _variantService;
@@ -51,7 +53,7 @@ public class ProductVariantsController : ControllerBase
 
     [HttpGet]
     [AllowAnonymous]
-    public async Task<IActionResult> ListVariants(Guid productId, [FromQuery] ProductQueryParameters queryParams)
+    public async Task<IActionResult> ListVariants(Guid productId, [FromQuery] VariantQueryParameters queryParams)
     {
         var result = await _variantService.GetVariantsAsync(productId, queryParams);
         return Ok(new { message = "Variants retrieved successfully.", data = result });

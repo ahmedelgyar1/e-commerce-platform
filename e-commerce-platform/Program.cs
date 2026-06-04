@@ -1,3 +1,4 @@
+using System.Threading.RateLimiting;
 using System.Text;
 using e_commerce_platform.Domain.Entities;
 using e_commerce_platform.Infrastructure.Data;
@@ -27,6 +28,27 @@ namespace e_commerce_platform
 
             builder.Services.AddDbContext<AppDbContext>(options =>
                 options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+            builder.Services.AddMemoryCache();
+
+            builder.Services.AddRateLimiter(options =>
+            {
+                options.AddFixedWindowLimiter("general", config =>
+                {
+                    config.PermitLimit = 200;
+                    config.Window = TimeSpan.FromMinutes(1);
+                    config.QueueLimit = 0;
+                });
+
+                options.AddFixedWindowLimiter("auth", config =>
+                {
+                    config.PermitLimit = 10;
+                    config.Window = TimeSpan.FromMinutes(1);
+                    config.QueueLimit = 0;
+                });
+
+                options.RejectionStatusCode = 429;
+            });
 
             builder.Services.AddIdentity<ApplicationUser, IdentityRole<Guid>>(options =>
             {
@@ -66,7 +88,6 @@ namespace e_commerce_platform
             builder.Services.AddAuthorization(options =>
             {
                 options.AddPolicy("MerchantOnly", policy => policy.RequireRole("Merchant"));
-                options.AddPolicy("CustomerOnly", policy => policy.RequireRole("Customer"));
                 options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
             });
 
@@ -130,6 +151,8 @@ namespace e_commerce_platform
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
+
+            app.UseRateLimiter();
 
             app.UseHttpsRedirection();
 

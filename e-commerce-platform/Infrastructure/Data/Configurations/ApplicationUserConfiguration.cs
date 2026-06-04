@@ -29,7 +29,6 @@ public class ApplicationUserConfiguration : IEntityTypeConfiguration<Application
 
         builder.HasDiscriminator(u => u.Role)
             .HasValue<ApplicationUser>(UserRole.Admin)
-            .HasValue<Customer>(UserRole.Customer)
             .HasValue<Merchant>(UserRole.Merchant);
 
         builder.Property(u => u.CreatedAt)

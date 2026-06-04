@@ -20,6 +20,13 @@ public class ApplicationUserConfiguration : IEntityTypeConfiguration<Application
             .HasConversion<string>()
             .HasMaxLength(20);
 
+        builder.Property(u => u.OtpCode)
+            .HasMaxLength(10)
+            .IsRequired(false);
+
+        builder.Property(u => u.OtpExpiry)
+            .IsRequired(false);
+
         builder.HasDiscriminator(u => u.Role)
             .HasValue<ApplicationUser>(UserRole.Admin)
             .HasValue<Customer>(UserRole.Customer)

@@ -10,6 +10,9 @@ public class ApplicationUser : IdentityUser<Guid>
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
+    public string? OtpCode { get; set; }
+    public DateTime? OtpExpiry { get; set; }
+
     public ICollection<RefreshToken> RefreshTokens { get; set; } = [];
     public ICollection<FcmToken> FcmTokens { get; set; } = [];
     public ICollection<Notification> Notifications { get; set; } = [];

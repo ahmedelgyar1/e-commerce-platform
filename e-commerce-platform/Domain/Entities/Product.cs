@@ -15,6 +15,5 @@ public class Product
 
     public Merchant Merchant { get; set; } = null!;
     public ICollection<ProductVariant> Variants { get; set; } = [];
-    public ICollection<ProductAttribute> ProductAttributes { get; set; } = [];
-    public ICollection<ProductCategory> ProductCategories { get; set; } = [];
+    public ICollection<Attribute> Attributes { get; set; } = [];
 }

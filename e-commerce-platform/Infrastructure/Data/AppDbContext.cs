@@ -16,11 +16,8 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid
     public DbSet<FcmToken> FcmTokens => Set<FcmToken>();
     public DbSet<Notification> Notifications => Set<Notification>();
     public DbSet<Address> Addresses => Set<Address>();
-    public DbSet<Category> Categories => Set<Category>();
-    public DbSet<ProductCategory> ProductCategories => Set<ProductCategory>();
     public DbSet<Product> Products => Set<Product>();
     public DbSet<Domain.Entities.Attribute> Attributes => Set<Domain.Entities.Attribute>();
-    public DbSet<ProductAttribute> ProductAttributes => Set<ProductAttribute>();
     public DbSet<AttributeValue> AttributeValues => Set<AttributeValue>();
     public DbSet<ProductVariant> ProductVariants => Set<ProductVariant>();
     public DbSet<ProductVariantAttributeValue> ProductVariantAttributeValues => Set<ProductVariantAttributeValue>();

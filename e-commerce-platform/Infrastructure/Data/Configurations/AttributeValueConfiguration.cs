@@ -19,6 +19,9 @@ public class AttributeValueConfiguration : IEntityTypeConfiguration<AttributeVal
         builder.Property(av => av.CreatedAt)
             .IsRequired();
 
+        builder.Property(av => av.DisplayOrder)
+            .IsRequired();
+
         builder.HasOne(av => av.Attribute)
             .WithMany(a => a.Values)
             .HasForeignKey(av => av.AttributeId)

@@ -81,6 +81,9 @@ namespace e_commerce_platform
             builder.Services.AddScoped<IAttributeValueRepository, AttributeValueRepository>();
             builder.Services.AddScoped<IProductAttributeService, ProductAttributeService>();
 
+            builder.Services.AddScoped<IProductVariantRepository, ProductVariantRepository>();
+            builder.Services.AddScoped<IProductVariantService, ProductVariantService>();
+
             builder.Services.AddHttpContextAccessor();
             builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 

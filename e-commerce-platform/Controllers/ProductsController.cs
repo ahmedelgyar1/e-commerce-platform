@@ -31,11 +31,11 @@ public class ProductsController : ControllerBase
         var merchantId = _currentUserService.UserId;
         if (merchantId == null)
         {
-            return Unauthorized(new { error = "User is not authenticated." });
+            return Unauthorized(new { message = "User is not authenticated." });
         }
 
         var result = await _productService.CreateProductAsync(request, merchantId.Value);
-        return CreatedAtAction(nameof(GetProductById), new { id = result.Id }, result);
+        return CreatedAtAction(nameof(GetProductById), new { id = result.Id }, new { message = "Product created successfully.", data = result });
     }
 
     [HttpGet]
@@ -46,13 +46,12 @@ public class ProductsController : ControllerBase
         if (queryParams.PageSize < 1 || queryParams.PageSize > 100) queryParams.PageSize = 10;
 
         var finalStatus = queryParams.Status;
-        var currentUserId = _currentUserService.UserId;
 
         if (!_currentUserService.IsAuthenticated)
         {
             finalStatus = ProductStatus.Active;
         }
-        else if (!queryParams.MerchantId.HasValue || queryParams.MerchantId.Value != currentUserId)
+        else if (!queryParams.MerchantId.HasValue || queryParams.MerchantId.Value != _currentUserService.UserId)
         {
             finalStatus = ProductStatus.Active;
         }
@@ -60,7 +59,7 @@ public class ProductsController : ControllerBase
         queryParams.Status = finalStatus;
 
         var result = await _productService.GetProductsAsync(queryParams);
-        return Ok(result);
+        return Ok(new { message = "Products retrieved successfully.", data = result });
     }
 
     [HttpGet("{id:guid}")]
@@ -70,7 +69,7 @@ public class ProductsController : ControllerBase
         var product = await _productService.GetProductByIdAsync(id);
         if (product == null)
         {
-            return NotFound(new { error = "Product not found." });
+            return NotFound(new { message = "Product not found." });
         }
 
         if (product.Status != ProductStatus.Active)
@@ -78,11 +77,11 @@ public class ProductsController : ControllerBase
             var currentUserId = _currentUserService.UserId;
             if (product.MerchantId != currentUserId)
             {
-                return NotFound(new { error = "Product not found." });
+                return NotFound(new { message = "Product not found." });
             }
         }
 
-        return Ok(product);
+        return Ok(new { message = "Product retrieved successfully.", data = product });
     }
 
     [HttpPatch("{id:guid}")]
@@ -92,21 +91,21 @@ public class ProductsController : ControllerBase
         var merchantId = _currentUserService.UserId;
         if (merchantId == null)
         {
-            return Unauthorized(new { error = "User is not authenticated." });
+            return Unauthorized(new { message = "User is not authenticated." });
         }
 
         try
         {
             var result = await _productService.UpdateProductAsync(id, request, merchantId.Value);
-            return Ok(result);
+            return Ok(new { message = "Product updated successfully.", data = result });
         }
         catch (KeyNotFoundException)
         {
-            return NotFound(new { error = "Product not found." });
+            return NotFound(new { message = "Product not found." });
         }
         catch (UnauthorizedAccessException ex)
         {
-            return Unauthorized(new { error = ex.Message });
+            return Unauthorized(new { message = ex.Message });
         }
     }
 
@@ -117,21 +116,21 @@ public class ProductsController : ControllerBase
         var merchantId = _currentUserService.UserId;
         if (merchantId == null)
         {
-            return Unauthorized(new { error = "User is not authenticated." });
+            return Unauthorized(new { message = "User is not authenticated." });
         }
 
         try
         {
             await _productService.DeleteProductAsync(id, merchantId.Value);
-            return NoContent();
+            return Ok(new { message = "Product deleted successfully." });
         }
         catch (KeyNotFoundException)
         {
-            return NotFound(new { error = "Product not found." });
+            return NotFound(new { message = "Product not found." });
         }
         catch (UnauthorizedAccessException ex)
         {
-            return Unauthorized(new { error = ex.Message });
+            return Unauthorized(new { message = ex.Message });
         }
     }
 }

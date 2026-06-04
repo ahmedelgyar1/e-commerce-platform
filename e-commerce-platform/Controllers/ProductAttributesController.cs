@@ -27,25 +27,25 @@ public class ProductAttributesController : ControllerBase
         var merchantId = _currentUserService.UserId;
         if (merchantId == null)
         {
-            return Unauthorized(new { error = "User is not authenticated." });
+            return Unauthorized(new { message = "User is not authenticated." });
         }
 
         try
         {
             var result = await _attributeService.AddAttributeAsync(productId, request, merchantId.Value);
-            return CreatedAtAction(nameof(ListAttributes), new { productId }, result);
+            return CreatedAtAction(nameof(ListAttributes), new { productId }, new { message = "Attribute added successfully.", data = result });
         }
         catch (KeyNotFoundException ex)
         {
-            return NotFound(new { error = ex.Message });
+            return NotFound(new { message = ex.Message });
         }
         catch (UnauthorizedAccessException ex)
         {
-            return Unauthorized(new { error = ex.Message });
+            return Unauthorized(new { message = ex.Message });
         }
         catch (InvalidOperationException ex)
         {
-            return BadRequest(new { error = ex.Message });
+            return BadRequest(new { message = ex.Message });
         }
     }
 
@@ -54,7 +54,7 @@ public class ProductAttributesController : ControllerBase
     public async Task<IActionResult> ListAttributes(Guid productId)
     {
         var result = await _attributeService.GetAttributesByProductIdAsync(productId);
-        return Ok(result);
+        return Ok(new { message = "Attributes retrieved successfully.", data = result });
     }
 
     [HttpPatch("{attributeId:guid}")]
@@ -64,25 +64,25 @@ public class ProductAttributesController : ControllerBase
         var merchantId = _currentUserService.UserId;
         if (merchantId == null)
         {
-            return Unauthorized(new { error = "User is not authenticated." });
+            return Unauthorized(new { message = "User is not authenticated." });
         }
 
         try
         {
             var result = await _attributeService.UpdateAttributeAsync(productId, attributeId, request, merchantId.Value);
-            return Ok(result);
+            return Ok(new { message = "Attribute updated successfully.", data = result });
         }
         catch (KeyNotFoundException ex)
         {
-            return NotFound(new { error = ex.Message });
+            return NotFound(new { message = ex.Message });
         }
         catch (UnauthorizedAccessException ex)
         {
-            return Unauthorized(new { error = ex.Message });
+            return Unauthorized(new { message = ex.Message });
         }
         catch (InvalidOperationException ex)
         {
-            return BadRequest(new { error = ex.Message });
+            return BadRequest(new { message = ex.Message });
         }
     }
 
@@ -93,21 +93,21 @@ public class ProductAttributesController : ControllerBase
         var merchantId = _currentUserService.UserId;
         if (merchantId == null)
         {
-            return Unauthorized(new { error = "User is not authenticated." });
+            return Unauthorized(new { message = "User is not authenticated." });
         }
 
         try
         {
             await _attributeService.DeleteAttributeAsync(productId, attributeId, merchantId.Value);
-            return NoContent();
+            return Ok(new { message = "Attribute deleted successfully." });
         }
         catch (KeyNotFoundException ex)
         {
-            return NotFound(new { error = ex.Message });
+            return NotFound(new { message = ex.Message });
         }
         catch (UnauthorizedAccessException ex)
         {
-            return Unauthorized(new { error = ex.Message });
+            return Unauthorized(new { message = ex.Message });
         }
     }
 
@@ -118,25 +118,25 @@ public class ProductAttributesController : ControllerBase
         var merchantId = _currentUserService.UserId;
         if (merchantId == null)
         {
-            return Unauthorized(new { error = "User is not authenticated." });
+            return Unauthorized(new { message = "User is not authenticated." });
         }
 
         try
         {
             var result = await _attributeService.AddAttributeValueAsync(productId, attributeId, request, merchantId.Value);
-            return Ok(result);
+            return Ok(new { message = "Attribute value added successfully.", data = result });
         }
         catch (KeyNotFoundException ex)
         {
-            return NotFound(new { error = ex.Message });
+            return NotFound(new { message = ex.Message });
         }
         catch (UnauthorizedAccessException ex)
         {
-            return Unauthorized(new { error = ex.Message });
+            return Unauthorized(new { message = ex.Message });
         }
         catch (InvalidOperationException ex)
         {
-            return BadRequest(new { error = ex.Message });
+            return BadRequest(new { message = ex.Message });
         }
     }
 
@@ -147,25 +147,25 @@ public class ProductAttributesController : ControllerBase
         var merchantId = _currentUserService.UserId;
         if (merchantId == null)
         {
-            return Unauthorized(new { error = "User is not authenticated." });
+            return Unauthorized(new { message = "User is not authenticated." });
         }
 
         try
         {
             var result = await _attributeService.UpdateAttributeValueAsync(productId, attributeId, valueId, request, merchantId.Value);
-            return Ok(result);
+            return Ok(new { message = "Attribute value updated successfully.", data = result });
         }
         catch (KeyNotFoundException ex)
         {
-            return NotFound(new { error = ex.Message });
+            return NotFound(new { message = ex.Message });
         }
         catch (UnauthorizedAccessException ex)
         {
-            return Unauthorized(new { error = ex.Message });
+            return Unauthorized(new { message = ex.Message });
         }
         catch (InvalidOperationException ex)
         {
-            return BadRequest(new { error = ex.Message });
+            return BadRequest(new { message = ex.Message });
         }
     }
 
@@ -176,21 +176,21 @@ public class ProductAttributesController : ControllerBase
         var merchantId = _currentUserService.UserId;
         if (merchantId == null)
         {
-            return Unauthorized(new { error = "User is not authenticated." });
+            return Unauthorized(new { message = "User is not authenticated." });
         }
 
         try
         {
             await _attributeService.DeleteAttributeValueAsync(productId, attributeId, valueId, merchantId.Value);
-            return NoContent();
+            return Ok(new { message = "Attribute value deleted successfully." });
         }
         catch (KeyNotFoundException ex)
         {
-            return NotFound(new { error = ex.Message });
+            return NotFound(new { message = ex.Message });
         }
         catch (UnauthorizedAccessException ex)
         {
-            return Unauthorized(new { error = ex.Message });
+            return Unauthorized(new { message = ex.Message });
         }
     }
 }

@@ -1,0 +1,137 @@
+## Ignore Visual Studio temporary files, build results, and user settings
+
+# User-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# User-specific files (MonoDevelop/xamarin)
+*.userprefs
+
+# Mono auto generated files
+mono_crash.*
+
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Re]leases/
+x64/
+x86/
+build/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Log]s/
+
+# Visual Studio 2015/2017/2019/2022 cache/options directory
+.vs/
+# Uncomment if you have tasks that create to-do list files
+#*.tasks
+
+# MSTest test Results
+[T]est[R]esult*/
+[B]uild[L]og.*
+
+# NUnit
+*.VisualState.xml
+TestResult.xml
+nunit-agent-confort.log
+
+# DNX
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# StyleCop
+StyleCopReport.xml
+
+# Files built by Visual Studio
+*_i.c
+*_p.c
+*_h.h
+*.ilk
+*.meta
+*.obj
+*.iobj
+*.pdb
+*.ipdb
+*.pgc
+*.pgd
+*.rsp
+*.sbr
+*.tlb
+*.tli
+*.tlh
+*.tmp
+*.tmp_proj
+*_wpftmp.csproj
+*.log
+*.tlog
+*.unsuccessfulbuild
+*.vspscc
+*.vsscc
+*.clw
+*.cfg
+*.dbmdl
+*.dbproj.schemaview
+*.jfm
+*.pfx
+*.publishsettings
+orleans.codegen.cs
+
+# Resharper is a staple
+_ReSharper*/
+*.[Re]Sharper.user
+*.DotSettings.user
+
+# JustCode
+.JustCode
+
+# TeamCity
+_TeamCity*
+
+# OMD Visual Studio plugins
+*.DotSettings
+
+# Rider
+.idea/
+*.sln.iml
+
+# Visual Studio Code
+.vscode/
+
+# Web tools
+node_modules/
+jspm_packages/
+bower_components/
+
+# Serverless Web App Local Settings
+local.settings.json
+
+# dotnet core
+project.assets.json
+project.lock.json
+*.nuget.props
+*.nuget.targets
+
+# Microsoft SQL Server files
+*.mdf
+*.ldf
+*.ndf
+
+# Business Intelligence Projects
+*.rdl.data
+*.sbdf
+
+# Microsoft Fakes
+FakesAssemblies/
+
+# GhostDoc
+*.GhostDoc.xml
+
+# AppSettings secrets (uncomment if you want to ignore appsettings secrets)
+# appsettings.json

@@ -46,7 +46,7 @@ public class EmailService : IEmailService
             };
 
             await smtpClient.SendMailAsync(mailMessage);
-            _logger.LogInformation("OTP email successfully sent to {Email} via Mailtrap.", email);
+            _logger.LogInformation("OTP email successfully sent to {Email} via SMTP.", email);
         }
         catch (Exception ex)
         {

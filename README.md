@@ -184,14 +184,19 @@ All configuration is managed through `appsettings.json`. Update the following se
 }
 ```
 
-### Mail Settings (Email Verification)
+### Mail Settings (Email Verification via Gmail)
+To send verification emails using Gmail's SMTP server:
+1. Enable **2-Step Verification** on your Google Account.
+2. Generate an **App Password** (go to Google Account Security -> App Passwords, generate a password for "Mail").
+3. Update `appsettings.json` with your credentials:
+
 ```json
 "MailSettings": {
-  "Host": "sandbox.smtp.mailtrap.io",
-  "Port": 2525,
-  "Username": "YOUR_MAILTRAP_USERNAME",
-  "Password": "YOUR_MAILTRAP_PASSWORD",
-  "FromEmail": "no-reply@ecommerce.com",
+  "Host": "smtp.gmail.com",
+  "Port": 587,
+  "Username": "your_email@gmail.com",
+  "Password": "your_16_character_app_password",
+  "FromEmail": "your_email@gmail.com",
   "FromName": "E-Commerce Platform"
 }
 ```

@@ -37,7 +37,7 @@ public class ProductAttributesController : ControllerBase
     [Authorize(Policy = "MerchantOnly")]
     [ProducesResponseType(typeof(ApiResponse<AttributeResponseDto>), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status429TooManyRequests)]
     public async Task<IActionResult> AddAttribute(Guid productId, [FromBody] CreateAttributeRequest request)
     {
@@ -82,7 +82,7 @@ public class ProductAttributesController : ControllerBase
     [Authorize(Policy = "MerchantOnly")]
     [ProducesResponseType(typeof(ApiResponse<AttributeResponseDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status429TooManyRequests)]
     public async Task<IActionResult> UpdateAttribute(Guid productId, Guid attributeId, [FromBody] UpdateAttributeRequest request)
@@ -102,14 +102,14 @@ public class ProductAttributesController : ControllerBase
     /// </summary>
     /// <param name="productId">The unique identifier of the product.</param>
     /// <param name="attributeId">The unique identifier of the attribute.</param>
-    /// <response code="200">If the attribute is successfully deleted.</response>
-    /// <response code="401">If the merchant is not authenticated or does not own the product.</response>
+    /// <response code="204">If the attribute is successfully deleted.</response>
+    /// <response code="403">If the merchant is not authenticated or does not own the product.</response>
     /// <response code="404">If the attribute does not exist.</response>
     /// <response code="429">If the rate limit is exceeded.</response>
     [HttpDelete("{attributeId:guid}")]
     [Authorize(Policy = "MerchantOnly")]
-    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status429TooManyRequests)]
     public async Task<IActionResult> DeleteAttribute(Guid productId, Guid attributeId)
@@ -121,7 +121,7 @@ public class ProductAttributesController : ControllerBase
         }
 
         await _attributeService.DeleteAttributeAsync(productId, attributeId, merchantId.Value);
-        return Ok(new { message = "Attribute deleted successfully." });
+        return NoContent();
     }
 
     /// <summary>
@@ -139,7 +139,7 @@ public class ProductAttributesController : ControllerBase
     [Authorize(Policy = "MerchantOnly")]
     [ProducesResponseType(typeof(ApiResponse<AttributeResponseDto>), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status429TooManyRequests)]
     public async Task<IActionResult> AddAttributeValue(Guid productId, Guid attributeId, [FromBody] CreateAttributeValueRequest request)
@@ -170,7 +170,7 @@ public class ProductAttributesController : ControllerBase
     [Authorize(Policy = "MerchantOnly")]
     [ProducesResponseType(typeof(ApiResponse<AttributeValueResponseDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status429TooManyRequests)]
     public async Task<IActionResult> UpdateAttributeValue(Guid productId, Guid attributeId, Guid valueId, [FromBody] UpdateAttributeValueRequest request)
@@ -191,14 +191,14 @@ public class ProductAttributesController : ControllerBase
     /// <param name="productId">The unique identifier of the product.</param>
     /// <param name="attributeId">The unique identifier of the attribute.</param>
     /// <param name="valueId">The unique identifier of the attribute value option.</param>
-    /// <response code="200">If the value option is successfully deleted.</response>
-    /// <response code="401">If the merchant is not authenticated or does not own the product.</response>
+    /// <response code="204">If the value option is successfully deleted.</response>
+    /// <response code="403">If the merchant is not authenticated or does not own the product.</response>
     /// <response code="404">If the attribute value option does not exist.</response>
     /// <response code="429">If the rate limit is exceeded.</response>
     [HttpDelete("{attributeId:guid}/values/{valueId:guid}")]
     [Authorize(Policy = "MerchantOnly")]
-    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status429TooManyRequests)]
     public async Task<IActionResult> DeleteAttributeValue(Guid productId, Guid attributeId, Guid valueId)
@@ -210,6 +210,6 @@ public class ProductAttributesController : ControllerBase
         }
 
         await _attributeService.DeleteAttributeValueAsync(productId, attributeId, valueId, merchantId.Value);
-        return Ok(new { message = "Attribute value deleted successfully." });
+        return NoContent();
     }
 }

@@ -34,16 +34,20 @@ public class ExceptionHandlingMiddleware
         var statusCode = exception switch
         {
             KeyNotFoundException => HttpStatusCode.NotFound,
-            UnauthorizedAccessException => HttpStatusCode.Unauthorized,
+            UnauthorizedAccessException => HttpStatusCode.Forbidden,
             InvalidOperationException or ArgumentException => HttpStatusCode.BadRequest,
             _ => HttpStatusCode.InternalServerError
         };
 
         context.Response.StatusCode = (int)statusCode;
 
+        var errorMessage = statusCode == HttpStatusCode.InternalServerError
+            ? "An unexpected error occurred."
+            : exception.Message;
+
         var response = new
         {
-            message = exception.Message
+            message = errorMessage
         };
 
         var json = JsonSerializer.Serialize(response);

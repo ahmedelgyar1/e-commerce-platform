@@ -40,7 +40,6 @@ public class ProductsController : ControllerBase
     [Authorize(Policy = "MerchantOnly")]
     [ProducesResponseType(typeof(ApiResponse<ProductDto>), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status429TooManyRequests)]
     public async Task<IActionResult> CreateProduct([FromBody] CreateProductRequest request)
     {
@@ -133,7 +132,7 @@ public class ProductsController : ControllerBase
     [Authorize(Policy = "MerchantOnly")]
     [ProducesResponseType(typeof(ApiResponse<ProductDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status429TooManyRequests)]
     public async Task<IActionResult> UpdateProduct(Guid id, [FromBody] UpdateProductRequest request)
@@ -152,15 +151,15 @@ public class ProductsController : ControllerBase
     /// Soft deletes an existing product and its cached data.
     /// </summary>
     /// <param name="id">The unique identifier of the product.</param>
-    /// <response code="200">If the product is successfully deleted.</response>
+    /// <response code="204">If the product is successfully deleted.</response>
     /// <response code="401">If the merchant is not authenticated.</response>
     /// <response code="403">If the merchant does not own the product.</response>
     /// <response code="404">If the product does not exist.</response>
     /// <response code="429">If the rate limit is exceeded.</response>
     [HttpDelete("{id:guid}")]
     [Authorize(Policy = "MerchantOnly")]
-    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status429TooManyRequests)]
     public async Task<IActionResult> DeleteProduct(Guid id)
@@ -172,7 +171,7 @@ public class ProductsController : ControllerBase
         }
 
         await _productService.DeleteProductAsync(id, merchantId.Value);
-        return Ok(new { message = "Product deleted successfully." });
+        return NoContent();
     }
 
     /// <summary>
@@ -190,7 +189,7 @@ public class ProductsController : ControllerBase
     [Authorize(Policy = "MerchantOnly")]
     [ProducesResponseType(typeof(ApiResponse<ProductDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status429TooManyRequests)]
     public async Task<IActionResult> UploadProductImage(Guid id, IFormFile image)

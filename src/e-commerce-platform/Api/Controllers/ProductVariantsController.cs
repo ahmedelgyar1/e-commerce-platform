@@ -37,7 +37,7 @@ public class ProductVariantsController : ControllerBase
     [Authorize(Policy = "MerchantOnly")]
     [ProducesResponseType(typeof(ApiResponse<VariantResponseDto>), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status429TooManyRequests)]
     public async Task<IActionResult> CreateVariant(Guid productId, [FromBody] CreateVariantRequest request)
     {
@@ -102,7 +102,7 @@ public class ProductVariantsController : ControllerBase
     [Authorize(Policy = "MerchantOnly")]
     [ProducesResponseType(typeof(ApiResponse<VariantResponseDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status429TooManyRequests)]
     public async Task<IActionResult> UpdateVariant(Guid productId, Guid variantId, [FromBody] UpdateVariantRequest request)
@@ -122,14 +122,14 @@ public class ProductVariantsController : ControllerBase
     /// </summary>
     /// <param name="productId">The unique identifier of the parent product.</param>
     /// <param name="variantId">The unique identifier of the variant.</param>
-    /// <response code="200">If the variant is successfully deleted.</response>
-    /// <response code="401">If the merchant is not authenticated or does not own the product.</response>
+    /// <response code="204">If the variant is successfully deleted.</response>
+    /// <response code="403">If the merchant is not authenticated or does not own the product.</response>
     /// <response code="404">If the variant does not exist under the specified product.</response>
     /// <response code="429">If the rate limit is exceeded.</response>
     [HttpDelete("{variantId:guid}")]
     [Authorize(Policy = "MerchantOnly")]
-    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status429TooManyRequests)]
     public async Task<IActionResult> DeleteVariant(Guid productId, Guid variantId)
@@ -141,6 +141,6 @@ public class ProductVariantsController : ControllerBase
         }
 
         await _variantService.DeleteVariantAsync(productId, variantId, merchantId.Value);
-        return Ok(new { message = "Variant deleted successfully." });
+        return NoContent();
     }
 }

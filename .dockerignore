@@ -1,0 +1,32 @@
+# Git
+.git
+.gitignore
+
+# dotnet
+**/bin
+**/obj
+**/*.user
+**/*.suo
+
+# Secrets & config
+**/appsettings.Development.json
+**/appsettings.json
+**/secrets.json
+
+.env
+
+# Tests
+test/
+
+# Docker files 
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# IDE
+.vs/
+.vscode/
+*.DotSettings
+
+# Logs
+*.log

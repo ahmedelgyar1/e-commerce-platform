@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
 
-namespace e_commerce_platform.UnitTests;
+namespace e_commerce_platform.UnitTests.ProductVariants;
 
 public class ProductVariantServiceTests
 {

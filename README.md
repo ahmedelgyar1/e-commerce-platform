@@ -313,7 +313,7 @@ The core challenge is supporting **products with completely different attribute 
 All endpoints are documented with **XML comments** and **strongly-typed `[ProducesResponseType]` attributes**. The Swagger UI is available at:
 
 ```
-https://localhost:5242/swagger
+https://e-commerce-cloud-co.runasp.net/swagger/index.html
 ```
 
 Swagger provides:
@@ -437,9 +437,20 @@ This command builds the API docker image and spins up two services:
 * **web-api:** Running the ASP.NET Core application on port `5242`.
 * **db:** Running PostgreSQL 15 on port `5432` with an automated health check.
 
-### 2. Access the Application
-* **Swagger UI:** `http://localhost:5242/swagger`
+### 2. Access the Application (Local)
+* **Swagger UI:** `http://localhost:5242/swagger/index.html`
 * **API base URL:** `http://localhost:5242`
+
+---
+
+## Live Deployment
+
+The API is deployed and publicly accessible on **Monster ASP.NET Hosting**:
+
+| | URL |
+|---|---|
+| **Swagger UI** | `https://e-commerce-cloud-co.runasp.net/swagger/index.html` |
+| **API base URL** | `https://e-commerce-cloud-co.runasp.net` |
 
 ---
 

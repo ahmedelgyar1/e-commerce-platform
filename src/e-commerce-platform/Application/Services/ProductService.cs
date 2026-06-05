@@ -30,6 +30,17 @@ public class ProductService : IProductService
     {
         _logger.LogInformation("Creating product '{Name}' for merchant {MerchantId}.", request.Name, merchantId);
 
+        string? imageUrl = null;
+        string? imagePublicId = null;
+
+        if (request.Image != null)
+        {
+            ValidateImage(request.Image);
+            var uploadResult = await _imageService.UploadImageAsync(request.Image, "products");
+            imageUrl = uploadResult.Url;
+            imagePublicId = uploadResult.PublicId;
+        }
+
         var product = new Product
         {
             Id = Guid.NewGuid(),
@@ -38,6 +49,8 @@ public class ProductService : IProductService
             Description = request.Description,
             BasePrice = request.BasePrice,
             Status = request.Status,
+            ImageUrl = imageUrl,
+            ImagePublicId = imagePublicId,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow
         };
@@ -193,6 +206,8 @@ public class ProductService : IProductService
             throw new UnauthorizedAccessException("You are not authorized to upload an image for this product.");
         }
 
+        ValidateImage(image);
+
         // Delete old image if exists
         if (!string.IsNullOrEmpty(product.ImagePublicId))
         {
@@ -213,6 +228,21 @@ public class ProductService : IProductService
         _logger.LogInformation("Product {ProductId} image uploaded and cache invalidated.", productId);
 
         return MapToDto(product);
+    }
+
+    private void ValidateImage(IFormFile image)
+    {
+        var allowedTypes = new[] { "image/jpeg", "image/png", "image/webp", "image/gif" };
+        if (!allowedTypes.Contains(image.ContentType.ToLower()))
+        {
+            throw new ArgumentException("Invalid file type. Only JPEG, PNG, WebP, and GIF are allowed.");
+        }
+
+        const long maxFileSize = 5 * 1024 * 1024; // 5 MB
+        if (image.Length > maxFileSize)
+        {
+            throw new ArgumentException("File size exceeds the maximum limit of 5MB.");
+        }
     }
 
     private ProductDto MapToDto(Product product)

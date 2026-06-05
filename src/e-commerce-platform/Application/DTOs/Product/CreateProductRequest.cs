@@ -16,4 +16,6 @@ public class CreateProductRequest
     public decimal BasePrice { get; set; }
 
     public ProductStatus Status { get; set; } = ProductStatus.Draft;
+
+    public IFormFile? Image { get; set; }
 }

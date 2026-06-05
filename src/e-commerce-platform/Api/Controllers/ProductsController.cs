@@ -41,7 +41,7 @@ public class ProductsController : ControllerBase
     [ProducesResponseType(typeof(ApiResponse<ProductDto>), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status429TooManyRequests)]
-    public async Task<IActionResult> CreateProduct([FromBody] CreateProductRequest request)
+    public async Task<IActionResult> CreateProduct([FromForm] CreateProductRequest request)
     {
         var merchantId = _currentUserService.UserId;
         if (merchantId == null)
@@ -198,18 +198,6 @@ public class ProductsController : ControllerBase
         if (merchantId == null)
         {
             return Unauthorized(new { message = "User is not authenticated." });
-        }
-
-        var allowedTypes = new[] { "image/jpeg", "image/png", "image/webp", "image/gif" };
-        if (!allowedTypes.Contains(image.ContentType.ToLower()))
-        {
-            return BadRequest(new { message = "Invalid file type. Only JPEG, PNG, WebP, and GIF are allowed." });
-        }
-
-        const long maxFileSize = 5 * 1024 * 1024; // 5 MB
-        if (image.Length > maxFileSize)
-        {
-            return BadRequest(new { message = "File size exceeds the maximum limit of 5MB." });
         }
 
         var result = await _productService.UploadProductImageAsync(id, image, merchantId.Value);

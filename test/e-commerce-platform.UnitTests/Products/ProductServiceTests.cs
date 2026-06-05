@@ -4,6 +4,7 @@ using e_commerce_platform.Application.DTOs.Product;
 using e_commerce_platform.Application.Services;
 using e_commerce_platform.Application.Interfaces;
 using e_commerce_platform.Domain.Interfaces;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -58,6 +59,64 @@ public class ProductServiceTests
         Assert.Equal(merchantId, result.MerchantId);
         _productRepoMock.Verify(m => m.AddAsync(It.IsAny<Product>()), Times.Once);
         _productRepoMock.Verify(m => m.SaveChangesAsync(), Times.Once);
+    }
+
+    [Fact]
+    public async Task CreateProductAsync_WithImage_ShouldUploadAndCreateProductSuccessfully()
+    {
+        var merchantId = Guid.NewGuid();
+        var imageMock = new Mock<IFormFile>();
+        imageMock.Setup(i => i.ContentType).Returns("image/png");
+        imageMock.Setup(i => i.Length).Returns(1024); // 1 KB
+
+        var request = new CreateProductRequest
+        {
+            Name = "Nike Air Max",
+            Description = "Premium Sneakers",
+            BasePrice = 120.00m,
+            Status = ProductStatus.Active,
+            Image = imageMock.Object
+        };
+
+        var uploadResult = new ImageUploadResultDto
+        {
+            Url = "https://cloudinary.com/nike.png",
+            PublicId = "nike_image_id"
+        };
+
+        _imageServiceMock
+            .Setup(m => m.UploadImageAsync(imageMock.Object, "products"))
+            .ReturnsAsync(uploadResult);
+
+        var result = await _service.CreateProductAsync(request, merchantId);
+
+        Assert.Equal(request.Name, result.Name);
+        Assert.Equal(request.BasePrice, result.BasePrice);
+        Assert.Equal(merchantId, result.MerchantId);
+        Assert.Equal(uploadResult.Url, result.ImageUrl);
+        _imageServiceMock.Verify(m => m.UploadImageAsync(imageMock.Object, "products"), Times.Once);
+        _productRepoMock.Verify(m => m.AddAsync(It.IsAny<Product>()), Times.Once);
+        _productRepoMock.Verify(m => m.SaveChangesAsync(), Times.Once);
+    }
+
+    [Fact]
+    public async Task CreateProductAsync_WithInvalidImageType_ShouldThrowArgumentException()
+    {
+        var merchantId = Guid.NewGuid();
+        var imageMock = new Mock<IFormFile>();
+        imageMock.Setup(i => i.ContentType).Returns("text/plain");
+
+        var request = new CreateProductRequest
+        {
+            Name = "Nike Air Max",
+            Description = "Premium Sneakers",
+            BasePrice = 120.00m,
+            Status = ProductStatus.Active,
+            Image = imageMock.Object
+        };
+
+        await Assert.ThrowsAsync<ArgumentException>(() =>
+            _service.CreateProductAsync(request, merchantId));
     }
 
     [Fact]

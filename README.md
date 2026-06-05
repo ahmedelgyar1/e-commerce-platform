@@ -202,81 +202,8 @@ All configuration is managed through `appsettings.json`. Update the following se
 
 ### ERD Diagram
 
-```
-┌─────────────────────────┐
-│    ApplicationUser      │        ┌──────────────────────────┐
-│  (ASP.NET Identity)     │        │      RefreshToken         │
-├─────────────────────────┤        ├──────────────────────────┤
-│ Id (PK, Guid)           │───1:N──│ Id (PK, Guid)            │
-│ FullName                │        │ UserId (FK)              │
-│ Email                   │        │ Token                    │
-│ Role (Enum)             │        │ ExpiresAt                │
-│ OtpCode                 │        │ CreatedAt                │
-│ OtpExpiry               │        │ RevokedAt                │
-│ CreatedAt               │        └──────────────────────────┘
-│ UpdatedAt               │
-└────────┬────────────────┘
-         │ TPH Inheritance
-┌────────┴────────────────┐
-│       Merchant          │
-├─────────────────────────┤
-│ (inherits from          │
-│  ApplicationUser)       │
-│                         │───1:N──┐
-└─────────────────────────┘        │
-                                   │
-                          ┌────────┴──────────────────┐
-                          │        Product             │
-                          ├───────────────────────────┤
-                          │ Id (PK, Guid)              │
-                          │ MerchantId (FK)            │
-                          │ Name                       │
-                          │ Description                │
-                          │ BasePrice                  │
-                          │ ImageUrl                   │
-                          │ ImagePublicId              │
-                          │ Status (Enum)              │
-                          │ IsDeleted (Soft Delete)    │
-                          │ DeletedAt                  │
-                          │ CreatedAt                  │
-                          │ UpdatedAt                  │
-                          ├───────────┬───────────────┤
-                          │           │               │
-                     1:N  │      1:N  │               │
-                          ▼           ▼               │
-              ┌───────────────┐ ┌──────────────────┐  │
-              │   Attribute   │ │  ProductVariant   │  │
-              ├───────────────┤ ├──────────────────┤  │
-              │ Id (PK)       │ │ Id (PK)          │  │
-              │ ProductId(FK) │ │ ProductId (FK)   │  │
-              │ Name          │ │ SKU (Unique)     │  │
-              │ DisplayOrder  │ │ Quantity         │  │
-              │ CreatedAt     │ │ PriceOverride    │  │
-              └───────┬───────┘ │ IsActive         │  │
-                      │         │ IsDeleted        │  │
-                 1:N  │         │ DeletedAt        │  │
-                      ▼         │ CreatedAt        │  │
-           ┌─────────────────┐  │ UpdatedAt        │  │
-           │ AttributeValue  │  └────────┬─────────┘  │
-           ├─────────────────┤           │            │
-           │ Id (PK)         │           │            │
-           │ AttributeId(FK) │      N:M  │            │
-           │ Value           │           │            │
-           │ DisplayOrder    │◄──────────┘            │
-           │ CreatedAt       │  (via Join Table)      │
-           └─────────────────┘                        │
-                      │                               │
-                      │         ┌─────────────────────┘
-                      │         │
-                      ▼         ▼
-        ┌───────────────────────────────────┐
-        │ ProductVariantAttributeValue      │
-        │          (Join Table)             │
-        ├───────────────────────────────────┤
-        │ ProductVariantId (FK, Composite)  │
-        │ AttributeValueId (FK, Composite)  │
-        └───────────────────────────────────┘
-```
+<img width="3259" height="8192" alt="image" src="https://github.com/user-attachments/assets/70b588df-e6c5-4d49-9aac-7797e714b618" />
+
 
 ### Entity Mapping & Relationships
 

@@ -1,11 +1,12 @@
 # Multi-Vendor E-Commerce Platform API
 
-A production-ready backend service for a multi-vendor e-commerce platform built with **ASP.NET Core 8**, **Entity Framework Core**, **PostgreSQL**, and **ASP.NET Identity**. The platform enables merchants to manage products with a flexible, scalable product variant system using the **Entity-Attribute-Value (EAV)** pattern.
+A production-ready backend service for a multi-vendor e-commerce platform built with **ASP.NET Core 8**, **Entity Framework Core**, **PostgreSQL**, and **ASP.NET Identity**. The platform enables merchants to manage products with a flexible, scalable product variant system using the **Entity-Attribute-Value (EAV)** pattern. Product images are managed via **Cloudinary** for optimized cloud-based storage and delivery.
 
 ---
 
 ## Table of Contents
 
+- [Live Deployment](#live-deployment)
 - [Architecture Overview](#architecture-overview)
 - [Technology Stack](#technology-stack)
 - [Project Structure](#project-structure)
@@ -22,6 +23,17 @@ A production-ready backend service for a multi-vendor e-commerce platform built 
   - [Product Variant Endpoints](#product-variant-endpoints)
 - [Features & Bonus Points](#features--bonus-points)
 - [Scalability Considerations](#scalability-considerations)
+
+---
+
+## Live Deployment
+
+The API is deployed and publicly accessible on **Monster ASP.NET Hosting**:
+
+| | URL |
+|---|---|
+| **Swagger UI** | `https://e-commerce-cloud-co.runasp.net/swagger/index.html` |
+| **API base URL** | `https://e-commerce-cloud-co.runasp.net` |
 
 ---
 
@@ -64,6 +76,7 @@ The project follows a **Layered Architecture** pattern organized into four disti
 | Identity | ASP.NET Core Identity |
 | Authentication | JWT Bearer Tokens + Refresh Tokens |
 | Caching | In-Memory Cache (`IMemoryCache`) |
+| Image Storage | Cloudinary (via `CloudinaryDotNet` SDK) |
 | Documentation | Swagger / OpenAPI with XML Comments |
 | Testing | xUnit + Moq |
 | Rate Limiting | ASP.NET Core Built-in Rate Limiter |
@@ -93,8 +106,9 @@ e-commerce-platform/
 │       ├── Infrastructure/
 │       │   ├── Data/                 # EF Core DbContext & configurations
 │       │   ├── Repositories/         # Repository implementations
+│       │   ├── Services/             # External service implementations (Cloudinary)
 │       │   └── Migrations/           # EF Core database migrations
-│       ├── Settings/                 # Configuration POCOs (JwtSettings, MailSettings)
+│       ├── Settings/                 # Configuration POCOs (JwtSettings, MailSettings, CloudinarySettings)
 │       ├── Program.cs               # Application entry point & DI configuration
 │       └── appsettings.json          # Application configuration
 ├── test/
@@ -219,6 +233,8 @@ All configuration is managed through `appsettings.json`. Update the following se
                           │ Name                       │
                           │ Description                │
                           │ BasePrice                  │
+                          │ ImageUrl                   │
+                          │ ImagePublicId              │
                           │ Status (Enum)              │
                           │ IsDeleted (Soft Delete)    │
                           │ DeletedAt                  │
@@ -291,6 +307,21 @@ The core challenge is supporting **products with completely different attribute 
 - **Query Complexity:** Filtering variants by attribute values requires joins across multiple tables, which is more complex than querying flat columns. This is mitigated by indexing and pagination.
 - **Validation at Application Layer:** Since the database schema doesn't enforce attribute completeness, the business logic layer validates that each variant covers all defined attributes.
 
+#### Why In-Memory Cache Instead of Redis?
+
+We intentionally chose `IMemoryCache` over Redis for the current stage of the project:
+
+1. **Single-Instance Deployment:** The application currently runs as a single instance. In-memory cache provides the fastest possible access (no network round-trip, no serialization overhead) for this topology.
+2. **Zero Infrastructure Overhead:** Redis requires a separate server/container, connection management, and monitoring. `IMemoryCache` works out of the box with no additional infrastructure.
+3. **Simplicity & Cost:** For a project at this scale, introducing Redis adds operational complexity without meaningful benefit. In-memory cache is free and requires zero configuration.
+4. **Sufficient for Current Needs:** We cache individual product reads with a 10-minute sliding expiration and invalidate on writes. This pattern works perfectly with in-memory cache.
+5. **Easy Migration Path:** The caching logic is encapsulated in the service layer. Migrating to Redis (via `IDistributedCache`) in the future requires minimal code changes — the service interfaces remain the same.
+
+**When to switch to Redis:**
+- When the application scales to **multiple instances** (load-balanced), requiring a shared cache.
+- When cache size exceeds available memory on the application server.
+- When **cache persistence** across application restarts becomes a requirement.
+
 #### Why Soft Delete?
 
 - **Data Recovery:** Accidentally deleted products can be restored without backups.
@@ -346,6 +377,7 @@ Swagger provides:
 | `GET` | `/api/products/{id}` | Get product details by ID | Public |
 | `PATCH` | `/api/products/{id}` | Update product details | Merchant (Owner) |
 | `DELETE` | `/api/products/{id}` | Soft delete a product | Merchant (Owner) |
+| `POST` | `/api/products/{id}/image` | Upload a product image to Cloudinary | Merchant (Owner) |
 
 **Query Parameters for `GET /api/products`:**
 
@@ -413,10 +445,11 @@ Swagger provides:
 | Docker Support | ✅ | Multi-stage Dockerfile and Docker Compose containerization |
 | Email Verification | ✅ | OTP-based email verification via SMTP |
 | Product CRUD | ✅ | Full CRUD with pagination, filtering, and search |
+| Product Image Upload | ✅ | Cloudinary integration with auto quality/format optimization (max 5MB, JPEG/PNG/WebP/GIF) |
 | Flexible Variant System | ✅ | EAV pattern — unlimited attributes, values, and combinations |
 | Swagger Documentation | ✅ | XML comments + ProducesResponseType annotations |
 | Unit Tests | ✅ | 12 tests covering ProductService and ProductVariantService (xUnit + Moq) |
-| Caching | ✅ | In-memory caching for product reads with automatic invalidation |
+| Caching | ✅ | In-memory caching for product reads with automatic invalidation ([why not Redis?](#why-in-memory-cache-instead-of-redis)) |
 | Soft Delete | ✅ | EF Core Global Query Filters for Products and Variants |
 | Rate Limiting | ✅ | Fixed-window rate limiting (200 req/min general, 10 req/min auth) |
 | Global Exception Handling | ✅ | Centralized middleware returning consistent JSON error responses |
@@ -440,17 +473,6 @@ This command builds the API docker image and spins up two services:
 ### 2. Access the Application (Local)
 * **Swagger UI:** `http://localhost:5242/swagger/index.html`
 * **API base URL:** `http://localhost:5242`
-
----
-
-## Live Deployment
-
-The API is deployed and publicly accessible on **Monster ASP.NET Hosting**:
-
-| | URL |
-|---|---|
-| **Swagger UI** | `https://e-commerce-cloud-co.runasp.net/swagger/index.html` |
-| **API base URL** | `https://e-commerce-cloud-co.runasp.net` |
 
 ---
 

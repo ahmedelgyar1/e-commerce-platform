@@ -2,6 +2,7 @@ using e_commerce_platform.Domain.Entities;
 using e_commerce_platform.Domain.Enums;
 using e_commerce_platform.Application.DTOs.Product;
 using e_commerce_platform.Application.Services;
+using e_commerce_platform.Application.Interfaces;
 using e_commerce_platform.Domain.Interfaces;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
@@ -13,6 +14,7 @@ namespace e_commerce_platform.UnitTests.Products;
 public class ProductServiceTests
 {
     private readonly Mock<IProductRepository> _productRepoMock;
+    private readonly Mock<IImageService> _imageServiceMock;
     private readonly Mock<IMemoryCache> _cacheMock;
     private readonly Mock<ILogger<ProductService>> _loggerMock;
     private readonly ProductService _service;
@@ -20,6 +22,7 @@ public class ProductServiceTests
     public ProductServiceTests()
     {
         _productRepoMock = new Mock<IProductRepository>();
+        _imageServiceMock = new Mock<IImageService>();
         _cacheMock = new Mock<IMemoryCache>();
         _loggerMock = new Mock<ILogger<ProductService>>();
         
@@ -30,6 +33,7 @@ public class ProductServiceTests
 
         _service = new ProductService(
             _productRepoMock.Object,
+            _imageServiceMock.Object,
             _cacheMock.Object,
             _loggerMock.Object
         );

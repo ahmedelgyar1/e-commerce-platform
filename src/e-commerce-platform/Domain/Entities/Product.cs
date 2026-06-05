@@ -11,6 +11,8 @@ public class Product : ISoftDelete
     public string? Description { get; set; }
     public ProductStatus Status { get; set; } = ProductStatus.Draft;
     public decimal BasePrice { get; set; }
+    public string? ImageUrl { get; set; }
+    public string? ImagePublicId { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
     public bool IsDeleted { get; set; }

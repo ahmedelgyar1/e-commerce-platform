@@ -8,6 +8,7 @@ using e_commerce_platform.Application.Services;
 using e_commerce_platform.Application.Interfaces;
 using e_commerce_platform.Domain.Interfaces;
 using e_commerce_platform.Settings;
+using e_commerce_platform.Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -29,6 +30,9 @@ namespace e_commerce_platform
 
             builder.Services.Configure<MailSettings>(
                 builder.Configuration.GetSection("MailSettings"));
+
+            builder.Services.Configure<CloudinarySettings>(
+                builder.Configuration.GetSection("CloudinarySettings"));
 
             builder.Services.AddDbContext<AppDbContext>(options =>
                 options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -108,6 +112,8 @@ namespace e_commerce_platform
 
             builder.Services.AddScoped<IProductVariantRepository, ProductVariantRepository>();
             builder.Services.AddScoped<IProductVariantService, ProductVariantService>();
+
+            builder.Services.AddScoped<IImageService, CloudinaryImageService>();
 
             builder.Services.AddHttpContextAccessor();
             builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();

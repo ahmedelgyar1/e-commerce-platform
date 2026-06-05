@@ -10,6 +10,7 @@ namespace e_commerce_platform.Application.Services;
 public class ProductService : IProductService
 {
     private readonly IProductRepository _productRepository;
+    private readonly IImageService _imageService;
     private readonly IMemoryCache _cache;
     private readonly ILogger<ProductService> _logger;
 
@@ -17,9 +18,10 @@ public class ProductService : IProductService
     private static readonly MemoryCacheEntryOptions CacheOptions = new MemoryCacheEntryOptions()
         .SetSlidingExpiration(TimeSpan.FromMinutes(10));
 
-    public ProductService(IProductRepository productRepository, IMemoryCache cache, ILogger<ProductService> logger)
+    public ProductService(IProductRepository productRepository, IImageService imageService, IMemoryCache cache, ILogger<ProductService> logger)
     {
         _productRepository = productRepository;
+        _imageService = imageService;
         _cache = cache;
         _logger = logger;
     }
@@ -175,6 +177,44 @@ public class ProductService : IProductService
         };
     }
 
+    public async Task<ProductDto> UploadProductImageAsync(Guid productId, IFormFile image, Guid merchantId)
+    {
+        _logger.LogInformation("Uploading image for product {ProductId} by merchant {MerchantId}.", productId, merchantId);
+
+        var product = await _productRepository.GetByIdAsync(productId);
+        if (product == null)
+        {
+            throw new KeyNotFoundException("Product not found.");
+        }
+
+        if (product.MerchantId != merchantId)
+        {
+            _logger.LogWarning("Unauthorized attempt to upload image for product {ProductId} by merchant {MerchantId}.", productId, merchantId);
+            throw new UnauthorizedAccessException("You are not authorized to upload an image for this product.");
+        }
+
+        // Delete old image if exists
+        if (!string.IsNullOrEmpty(product.ImagePublicId))
+        {
+            _logger.LogInformation("Deleting old image {PublicId} for product {ProductId}.", product.ImagePublicId, productId);
+            await _imageService.DeleteImageAsync(product.ImagePublicId);
+        }
+
+        var uploadResult = await _imageService.UploadImageAsync(image, "products");
+
+        product.ImageUrl = uploadResult.Url;
+        product.ImagePublicId = uploadResult.PublicId;
+        product.UpdatedAt = DateTime.UtcNow;
+
+        _productRepository.Update(product);
+        await _productRepository.SaveChangesAsync();
+
+        _cache.Remove(ProductCacheKey(productId));
+        _logger.LogInformation("Product {ProductId} image uploaded and cache invalidated.", productId);
+
+        return MapToDto(product);
+    }
+
     private ProductDto MapToDto(Product product)
     {
         return new ProductDto
@@ -184,6 +224,7 @@ public class ProductService : IProductService
             Name = product.Name,
             Description = product.Description ?? string.Empty,
             BasePrice = product.BasePrice,
+            ImageUrl = product.ImageUrl,
             Status = product.Status,
             CreatedAt = product.CreatedAt,
             UpdatedAt = product.UpdatedAt

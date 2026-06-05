@@ -174,4 +174,46 @@ public class ProductsController : ControllerBase
         await _productService.DeleteProductAsync(id, merchantId.Value);
         return Ok(new { message = "Product deleted successfully." });
     }
+
+    /// <summary>
+    /// Uploads an image for a specific product to Cloudinary.
+    /// </summary>
+    /// <param name="id">The unique identifier of the product.</param>
+    /// <param name="image">The image file to upload (max 5MB, image types only).</param>
+    /// <response code="200">Returns the updated product with the new image URL.</response>
+    /// <response code="400">If the file is invalid or too large.</response>
+    /// <response code="401">If the merchant is not authenticated.</response>
+    /// <response code="403">If the merchant does not own the product.</response>
+    /// <response code="404">If the product does not exist.</response>
+    /// <response code="429">If the rate limit is exceeded.</response>
+    [HttpPost("{id:guid}/image")]
+    [Authorize(Policy = "MerchantOnly")]
+    [ProducesResponseType(typeof(ApiResponse<ProductDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status429TooManyRequests)]
+    public async Task<IActionResult> UploadProductImage(Guid id, IFormFile image)
+    {
+        var merchantId = _currentUserService.UserId;
+        if (merchantId == null)
+        {
+            return Unauthorized(new { message = "User is not authenticated." });
+        }
+
+        var allowedTypes = new[] { "image/jpeg", "image/png", "image/webp", "image/gif" };
+        if (!allowedTypes.Contains(image.ContentType.ToLower()))
+        {
+            return BadRequest(new { message = "Invalid file type. Only JPEG, PNG, WebP, and GIF are allowed." });
+        }
+
+        const long maxFileSize = 5 * 1024 * 1024; // 5 MB
+        if (image.Length > maxFileSize)
+        {
+            return BadRequest(new { message = "File size exceeds the maximum limit of 5MB." });
+        }
+
+        var result = await _productService.UploadProductImageAsync(id, image, merchantId.Value);
+        return Ok(new { message = "Product image uploaded successfully.", data = result });
+    }
 }

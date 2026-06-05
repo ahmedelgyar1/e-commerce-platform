@@ -9,4 +9,5 @@ public interface IProductService
     Task<ProductDto> UpdateProductAsync(Guid id, UpdateProductRequest request, Guid merchantId);
     Task DeleteProductAsync(Guid id, Guid merchantId);
     Task<PaginatedProductsDto> GetProductsAsync(ProductQueryParameters queryParams);
+    Task<ProductDto> UploadProductImageAsync(Guid productId, IFormFile image, Guid merchantId);
 }
